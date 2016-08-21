@@ -207,13 +207,63 @@ namespace TestConcurrentcyApp
             //FirsTask();
             #endregion
 
-            Parallel_For_Local_Test();
+            #region Parallel
+            //Parallel_For_Local_Test();
+            #endregion
+
+            #region 任务内联化(task inlining)----活用顶层任务工作线程
+            Task headTask = new Task(() =>
+            {
+                DoSomeWork(null);
+            });
+            headTask.Start();
+            //            分析：（目前内联机制只有出现在等待任务场景）
+            //       这个示例，我们从Main方法主线程中创建了一个headTask顶层任务并开启。在headTask任务中又创建了三个嵌套任务并最后WaitAll() 这三个嵌套任务执行完成(嵌套任务安排在局部队列)。此时出现的情况就是headTask任务的线程被阻塞，而“任务内联化”技术会使用阻塞的headTask的线程去执行局部队列中的任务。因为减少了对额外线程需求，从而提升了程序性能。
+            //         局部队列“通常”以LIFO的顺序抽取任务并执行，而不是像全局队列那样使用FIFO顺序。LIFO顺序通常用有利于数据局部性，能够在牺牲一些公平性的情况下提升性能。
+            //数据局部性的意思是：运行最后一个到达的任务所需的数据都还在任何一个级别的CPU高速缓存中可用。由于数据在高速缓存中任然是“热的”，因此立即执行最后一个任务可能会获得性能提升。
+            #endregion
 
             // 测试
             Console.ReadKey();
 
         }
 
+        /// <summary>
+        /// 嵌套任务测试
+        /// </summary>
+        /// <param name="obj"></param>
+        private static void DoSomeWork(object obj)
+        {
+            Console.WriteLine("任务headTask运行在线程“{0}”上",
+                Thread.CurrentThread.ManagedThreadId);
+
+            var taskTop = new Task(() =>
+            {
+                Thread.Sleep(500);
+                Console.WriteLine("任务taskTop运行在线程“{0}”上",
+                    Thread.CurrentThread.ManagedThreadId);
+            });
+            var taskCenter = new Task(() =>
+            {
+                Thread.Sleep(500);
+                Console.WriteLine("任务taskCenter运行在线程“{0}”上",
+                    Thread.CurrentThread.ManagedThreadId);
+            });
+            var taskBottom = new Task(() =>
+            {
+                Thread.Sleep(500);
+                Console.WriteLine("任务taskBottom运行在线程“{0}”上",
+                    Thread.CurrentThread.ManagedThreadId);
+            });
+            taskTop.Start();
+            taskCenter.Start();
+            taskBottom.Start();
+            Task.WaitAll(new Task[] { taskTop, taskCenter, taskBottom });
+        }
+
+        /// <summary>
+        /// 并行测试
+        /// </summary>
         public static void Parallel_For_Local_Test()
         {
             int[] nums = Enumerable.Range(0, 1000000).ToArray<int>();
