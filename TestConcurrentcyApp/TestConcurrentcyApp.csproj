@@ -128,7 +128,7 @@
   <ItemGroup />
   <ItemGroup>
     <Content Include="sqls\InitTestDB.sql" />
-    <Content Include="sqls\insertStudent.sql" />
+    <Content Include="sqls\1.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
