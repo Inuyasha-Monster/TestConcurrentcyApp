@@ -6,6 +6,7 @@ using System.Data.Entity;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,11 @@ using TestConcurrentcyApp.Model;
 
 namespace TestConcurrentcyApp
 {
+    public class Person
+    {
+        public string Name { get; set; }
+    }
+
     class Program
     {
         private static Student GetStudent(int id)
@@ -212,15 +218,50 @@ namespace TestConcurrentcyApp
             #endregion
 
             #region 任务内联化(task inlining)----活用顶层任务工作线程
-            Task headTask = new Task(() =>
-            {
-                DoSomeWork(null);
-            });
-            headTask.Start();
+            //Task headTask = new Task(() =>
+            //{
+            //    DoSomeWork(null);
+            //});
+            //headTask.Start();
             //            分析：（目前内联机制只有出现在等待任务场景）
             //       这个示例，我们从Main方法主线程中创建了一个headTask顶层任务并开启。在headTask任务中又创建了三个嵌套任务并最后WaitAll() 这三个嵌套任务执行完成(嵌套任务安排在局部队列)。此时出现的情况就是headTask任务的线程被阻塞，而“任务内联化”技术会使用阻塞的headTask的线程去执行局部队列中的任务。因为减少了对额外线程需求，从而提升了程序性能。
             //         局部队列“通常”以LIFO的顺序抽取任务并执行，而不是像全局队列那样使用FIFO顺序。LIFO顺序通常用有利于数据局部性，能够在牺牲一些公平性的情况下提升性能。
             //数据局部性的意思是：运行最后一个到达的任务所需的数据都还在任何一个级别的CPU高速缓存中可用。由于数据在高速缓存中任然是“热的”，因此立即执行最后一个任务可能会获得性能提升。
+            #endregion
+
+            #region 反射性能测试
+
+            Person person = new Person();
+            PropertyInfo pInfo = typeof(Person).GetProperty("Name");
+            MethodInfo methodInfo = pInfo.GetSetMethod();
+
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
+            for (int i = 0; i < 10000000; i++)
+            {
+                methodInfo.Invoke(person, new object[] { "djl" });
+            }
+            sw.Stop();
+            Console.WriteLine("反射方法执行：" + sw.ElapsedMilliseconds + "ms");
+            sw.Restart();
+
+            for (int i = 0; i < 10000000; i++)
+            {
+                person.Name = "fuck";
+            }
+            sw.Stop();
+            Console.WriteLine("直接执行：" + sw.ElapsedMilliseconds + "ms");
+            sw.Restart();
+
+            // 1、必须知道 目标类型和修改目标属性(缺点)
+            Action<Person, string> MyAction = (Action<Person, string>)Delegate.CreateDelegate(typeof(Action<Person, string>), methodInfo);
+
+            for (int i = 0; i < 10000000; i++)
+            {
+                MyAction(person, "fuck2");
+            }
+            sw.Stop();
+            Console.WriteLine("Delegate.CreateDelegate：" + sw.ElapsedMilliseconds + "ms");
             #endregion
 
             // 测试
