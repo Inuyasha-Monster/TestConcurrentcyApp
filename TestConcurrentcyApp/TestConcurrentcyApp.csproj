@@ -125,8 +125,10 @@
       <DependentUpon>201608090724509_ResetIndexName.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="sqls\" />
+    <Content Include="sqls\InitTestDB.sql" />
+    <Content Include="sqls\insertStudent.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
