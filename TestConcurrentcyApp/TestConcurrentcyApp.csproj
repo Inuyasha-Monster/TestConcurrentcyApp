@@ -130,6 +130,7 @@
     <Content Include="sqls\fenye.sql" />
     <Content Include="sqls\InitTestDB.sql" />
     <Content Include="sqls\1.sql" />
+    <Content Include="sqls\proc.sql" />
     <Content Include="sqls\queryallinfo.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
