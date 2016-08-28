@@ -265,27 +265,45 @@ namespace TestConcurrentcyApp
             #endregion
 
             #region 冒泡复习
-            var list = new List<int>() { 2, 3, 4, 51, 2, 3, 4, 23, 5, 5, 3, 64, 77 };
+            //var list = new List<int>() { 2, 3, 4, 51, 2, 3, 4, 23, 5, 5, 3, 64, 77 };
 
-            for (int i = 0; i < list.Count; i++)
-            {
-                for (int j = i + 1; j < list.Count; j++)
-                {
-                    if (list[j] < list[i])
-                    {
-                        var temp = list[j];
-                        list[j] = list[i];
-                        list[i] = temp;
-                    }
-                }
-            }
-            list.ForEach(x => Console.WriteLine(x));
+            //for (int i = 0; i < list.Count; i++)
+            //{
+            //    for (int j = i + 1; j < list.Count; j++)
+            //    {
+            //        if (list[j] < list[i])
+            //        {
+            //            var temp = list[j];
+            //            list[j] = list[i];
+            //            list[i] = temp;
+            //        }
+            //    }
+            //}
+            //list.ForEach(x => Console.WriteLine(x));
 
+            #endregion
+
+            #region <C#>斐波那契数列(1、1、2、3、5、8、13、21、34 ...
+            Console.WriteLine(Fn(5));
             #endregion
 
             // 测试
             Console.ReadKey();
 
+        }
+
+        private static int Fn(int num)
+        {
+            if (num <= 0)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            if (num == 1 || num == 2)
+            {
+                return 1;
+            }
+            return checked(Fn(num - 1) + Fn(num - 2)); // when n>46 memory will  overflow
         }
 
         /// <summary>
