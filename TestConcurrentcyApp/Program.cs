@@ -231,37 +231,56 @@ namespace TestConcurrentcyApp
 
             #region 反射性能测试
 
-            Person person = new Person();
-            PropertyInfo pInfo = typeof(Person).GetProperty("Name");
-            MethodInfo methodInfo = pInfo.GetSetMethod();
+            //Person person = new Person();
+            //PropertyInfo pInfo = typeof(Person).GetProperty("Name");
+            //MethodInfo methodInfo = pInfo.GetSetMethod();
 
-            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-            sw.Start();
-            for (int i = 0; i < 10000000; i++)
+            //System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            //sw.Start();
+            //for (int i = 0; i < 10000000; i++)
+            //{
+            //    methodInfo.Invoke(person, new object[] { "djl" });
+            //}
+            //sw.Stop();
+            //Console.WriteLine("反射方法执行：" + sw.ElapsedMilliseconds + "ms");
+            //sw.Restart();
+
+            //for (int i = 0; i < 10000000; i++)
+            //{
+            //    person.Name = "fuck";
+            //}
+            //sw.Stop();
+            //Console.WriteLine("直接执行：" + sw.ElapsedMilliseconds + "ms");
+            //sw.Restart();
+
+            //// 1、必须知道 目标类型和修改目标属性(缺点)
+            //Action<Person, string> MyAction = (Action<Person, string>)Delegate.CreateDelegate(typeof(Action<Person, string>), methodInfo);
+
+            //for (int i = 0; i < 10000000; i++)
+            //{
+            //    MyAction(person, "fuck2");
+            //}
+            //sw.Stop();
+            //Console.WriteLine("Delegate.CreateDelegate：" + sw.ElapsedMilliseconds + "ms");
+            #endregion
+
+            #region 冒泡复习
+            var list = new List<int>() { 2, 3, 4, 51, 2, 3, 4, 23, 5, 5, 3, 64, 77 };
+
+            for (int i = 0; i < list.Count; i++)
             {
-                methodInfo.Invoke(person, new object[] { "djl" });
+                for (int j = i + 1; j < list.Count; j++)
+                {
+                    if (list[j] < list[i])
+                    {
+                        var temp = list[j];
+                        list[j] = list[i];
+                        list[i] = temp;
+                    }
+                }
             }
-            sw.Stop();
-            Console.WriteLine("反射方法执行：" + sw.ElapsedMilliseconds + "ms");
-            sw.Restart();
+            list.ForEach(x => Console.WriteLine(x));
 
-            for (int i = 0; i < 10000000; i++)
-            {
-                person.Name = "fuck";
-            }
-            sw.Stop();
-            Console.WriteLine("直接执行：" + sw.ElapsedMilliseconds + "ms");
-            sw.Restart();
-
-            // 1、必须知道 目标类型和修改目标属性(缺点)
-            Action<Person, string> MyAction = (Action<Person, string>)Delegate.CreateDelegate(typeof(Action<Person, string>), methodInfo);
-
-            for (int i = 0; i < 10000000; i++)
-            {
-                MyAction(person, "fuck2");
-            }
-            sw.Stop();
-            Console.WriteLine("Delegate.CreateDelegate：" + sw.ElapsedMilliseconds + "ms");
             #endregion
 
             // 测试
