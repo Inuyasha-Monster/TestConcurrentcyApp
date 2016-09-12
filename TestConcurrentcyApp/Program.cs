@@ -93,7 +93,7 @@ namespace TestConcurrentcyApp
             //      var entry = ex.Entries.Single();
             //      entry.OriginalValues.SetValues(entry.GetDatabaseValues());
             #endregion
-
+               
 
             #region EF默认的事务处理
 
